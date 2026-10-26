@@ -1,0 +1,12 @@
+# Local files and generated artifacts
+.env
+.env.*
+*.bak
+*.log
+*.user
+*.suo
+.vs/
+.vscode/
+*.pem
+*.pfx
+*.key

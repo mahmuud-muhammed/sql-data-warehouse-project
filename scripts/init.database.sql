@@ -1,28 +1,8 @@
-/*
-=============================================================
-Create Database and Schemas
-=============================================================
-Script Purpose:
-    This script creates a new database named 'DataWH' , the script sets up three schemas 
-    within the database: 'bronze', 'silver', and 'gold'.
-*/
-
-Use master;
+IF DB_ID(N'DataWH') IS NULL EXEC(N'CREATE DATABASE DataWH;');
 GO
-
--- Create the 'DataWH' database
-CREATE DATABASE DataWH;
-GO
-
 USE DataWH;
 GO
-
--- Create Schemas
-CREATE SCHEMA Bronze;
-GO
-  
-CREATE SCHEMA Silver;
-GO
-  
-CREATE SCHEMA Gold;
+IF SCHEMA_ID(N'bronze') IS NULL EXEC(N'CREATE SCHEMA bronze;');
+IF SCHEMA_ID(N'silver') IS NULL EXEC(N'CREATE SCHEMA silver;');
+IF SCHEMA_ID(N'gold') IS NULL EXEC(N'CREATE SCHEMA gold;');
 GO

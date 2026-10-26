@@ -1,23 +1,17 @@
-## Building the Data Warehouse (Data Engineering)
+## Project scope
 
-### Objective
-Develop a modern data warehouse using SQL Server to consolidate sales data, enabling analytical reporting and informed decision-making.
+Build a SQL Server warehouse from the supplied CRM and ERP CSV extracts. Clean and standardize the records before exposing a model for sales reporting.
 
-### Specifications
-- **Data Sources**: Import data from two source systems (ERP and CRM) provided as CSV files.
-- **Data Quality**: Cleanse and resolve data quality issues prior to analysis.
-- **Integration**: Combine both sources into a single, user-friendly data model designed for analytical queries.
-- **Scope**: Focus on the latest dataset only; historization of data is not required.
-- **Documentation**: Provide clear documentation of the data model to support both business stakeholders and analytics teams.
+## Data model
 
----
+The sales fact uses the source order/product line grain. The current sample has no repeated order/product pairs, though it does not provide a separate line identifier. Dimensions cover customers, products, and dates. Gold uses the latest available product version for each product number; it does not preserve historical product attributes by sale date.
 
-## BI: Analytics & Reporting (Data Analysis)
+## Reporting questions
 
-### Objective
-Develop SQL-based analytics to deliver detailed insights into:
-- **Customer Behavior**
-- **Product Performance**
-- **Sales Trends**
+The SQL in `analysis/` provides starting points for:
 
-These insights empower stakeholders with key business metrics, enabling strategic decision-making.
+- How are revenue, order count, and units changing month to month?
+- Which products and categories contribute the most revenue and units?
+- How often do customers purchase, and which customers are repeat buyers?
+
+Order count means distinct order numbers, not the number of product rows. A packaged dashboard is outside the current repository scope.
