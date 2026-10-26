@@ -1,37 +1,23 @@
-# Gold model
+# Gold model notes
 
-## `gold.fact_sales`
+## Grain and keys
 
-One row per source order/product line for the included extract. `order_number` repeats when an order contains multiple products. The current files contain no duplicate order/product pairs, but there is no source line ID to distinguish repeated occurrences if that changes.
+`gold.fact_sales` has one row per order/product line in the supplied files. The sample has no repeated order/product pairs, but the source has no separate line number. Add one if future extracts can contain repeated products on a single order.
 
-| Column | Meaning |
-| --- | --- |
-| `order_number` | Source order number; count distinct values for orders |
-| `customer_key` | Persisted key into `gold.dim_customers` |
-| `product_key` | Persisted key into `gold.dim_products` |
-| `order_date_key`, `shipping_date_key`, `due_date_key` | `YYYYMMDD` keys into `gold.dim_date`; null when source date is invalid or absent |
-| `sales_amount` | Cleaned line sales amount |
-| `quantity` | Source line quantity |
-| `unit_price` | Source unit price or price inferred from sales divided by quantity |
+`gold.dim_customers.customer_key` uses the CRM customer ID. `gold.dim_products.product_key` uses the normalized product number. They are stable source keys rather than generated surrogate keys; the original dimension views generated row numbers that could change when source rows changed.
 
-When a positive source price is available but line sales disagree with `quantity * price`, Silver recalculates sales from quantity and price. If price is missing or invalid but sales and quantity are positive, it derives price. Rows that cannot be reconciled remain null and appear in the quality checks.
+The product view chooses the latest available record for each product number, including discontinued products. This makes all product keys in the supplied sales file joinable. It does not reconstruct the product attributes that were current on the sale date.
 
-## Dimensions
+## Measures and KPIs
 
-- **`gold.dim_customers`** is keyed by `customer_key` (identity) and matched on `customer_id` from CRM. CRM supplies gender when populated; ERP supplies a fallback. Repeated loads update attributes in place.
-- **`gold.dim_products`** is keyed by `product_key` (identity) and matched on the product number. The most recent source version is used, including products with no active version, so sales for discontinued products still resolve. This is a current/latest-state dimension, not a type 2 history.
-- **`gold.dim_date`** uses the calendar date as its natural identity and `YYYYMMDD` as `date_key`. It covers the continuous range between the earliest and latest order, shipping, or due date seen in Silver.
-
-## KPI definitions
-
-- **Revenue:** sum of `sales_amount`.
-- **Orders:** distinct count of `order_number`, not fact rows.
-- **Units sold:** sum of `quantity`.
+- **Revenue:** sum of sales amount after Silver reconciles positive unit price and quantity.
+- **Units:** sum of sales quantity.
+- **Orders:** distinct order numbers, not fact rows.
 - **Revenue per order:** revenue divided by distinct orders.
-- **Repeat customer:** customer with more than one distinct order in the available extract.
+- **Repeat customer:** more than one distinct order in the supplied data period.
 
-These are descriptive metrics for the supplied data window. Customer lifetime revenue is limited to that window; it is not a prediction or a full customer lifetime value calculation.
+Customer metrics cover only the dates in the included extracts; they are not lifetime value estimates.
 
-## Load behavior
+## Date dimension
 
-Bronze and Silver are full refreshes. Gold merges current customer and product attributes into persisted dimension tables and inserts missing calendar dates. Identity keys stay the same while a natural key remains present. The project does not implement source deletion handling, incremental watermarks, or type 2 history.
+`gold.dim_date` uses `YYYYMMDD` as `date_key` and includes year, quarter, month, and day attributes. Run `gold.load_date_dimension` after `silver.load_silver` to add every date between the earliest and latest order, shipping, and due date.

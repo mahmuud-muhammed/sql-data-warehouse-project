@@ -1,0 +1,1 @@
+-- The date-dimension loader now lives in proc_load_gold.sql.

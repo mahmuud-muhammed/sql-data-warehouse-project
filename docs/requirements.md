@@ -1,17 +1,19 @@
-## Project scope
+## Building the Data Warehouse (Data Engineering)
 
-Build a SQL Server warehouse from the supplied CRM and ERP CSV extracts. Clean and standardize the records before exposing a model for sales reporting.
+### Objective
+Develop a SQL Server warehouse that combines the supplied CRM and ERP CSV extracts for sales analysis.
 
-## Data model
+### Specifications
+- Clean source issues before analysis.
+- Integrate CRM and ERP attributes into a model for customer, product, and sales reporting.
+- Use the latest available product attributes; type 2 history is outside the current scope.
+- Document the source-to-reporting flow and metric definitions.
 
-The sales fact uses the source order/product line grain. The current sample has no repeated order/product pairs, though it does not provide a separate line identifier. Dimensions cover customers, products, and dates. Gold uses the latest available product version for each product number; it does not preserve historical product attributes by sale date.
+## BI: Analytics & Reporting
 
-## Reporting questions
-
-The SQL in `analysis/` provides starting points for:
-
-- How are revenue, order count, and units changing month to month?
+The `analysis/` queries answer three starter questions:
+- How do revenue, units, and distinct orders change month to month?
 - Which products and categories contribute the most revenue and units?
-- How often do customers purchase, and which customers are repeat buyers?
+- Which customers ordered more than once in the supplied period?
 
-Order count means distinct order numbers, not the number of product rows. A packaged dashboard is outside the current repository scope.
+Order count means distinct order numbers because the fact is at order/product grain. A dashboard is a possible next step; the repository currently contains SQL analyses.
